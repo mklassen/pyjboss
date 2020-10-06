@@ -1,49 +1,45 @@
 import requests
 import json
 
+
+class AuthenticationError(Exception):
+    pass
+
+
 class Transport(object):
     '''
     Class used to make requests to jboss api and manage errors
     '''
 
-    def __init__(self, user, password, controller, host=None, server=None):
+    def __init__(self, user, password, controller, port=9990, host=None, server=None):
         self.user = user
         self.password = password
-        self.controller = "http://" + controller + ":9990/management"
+        self.controller = "http://{controller}:{port}/management".format(controller=controller,
+                                                                         port=port)
         self.host = host
         self.server = server
-    
-    def analise_return(self, request):
+
+    @staticmethod
+    def analize_return(request):
         if request.status_code ==  401:
-            print("user or password invalid.")
-            return False
-        elif not 'result' in request.json():
-            print("No resources found.")
-            return False
+            raise AuthenticationError
+        elif 'result' not in request.json():
+            return None
         elif request.ok and len(request.json()['result']) > 0:
             return request.json()['result']
         elif len(request.json()['result']) == 0:
-            print("No resources found.")
-            return False
-        
+            return None
 
     def make_request(self, method, endpoint, payload=None, params=None):
         headers = {'content-type': 'application/json'}
         authentication = requests.auth.HTTPDigestAuth(
             username=self.user, password=self.password)
         if payload is not None:
-            if not self.server == None:
+            if self.server:
                 payload['address'].insert(0, {"server" : self.server})
-            if not self.host == None:
+            if self.host:
                 payload['address'].insert(0, {"host" : self.host})
             payload = json.dumps(payload)
         if method == 'POST':
-            try:
-                return self.analise_return(requests.post(auth=authentication, url=endpoint, headers=headers, data=payload))
-            except requests.exceptions.ConnectionError:
-                print("Cannot connect to host controller url %s." % (self.controller))
-                return False
-            except: 
-                print("Cannot obtain a valid reponse.")
-                return False
-        
+            return self.analize_return(requests.post(auth=authentication, url=endpoint, headers=headers, data=payload))
+

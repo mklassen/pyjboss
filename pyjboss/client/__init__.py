@@ -1,21 +1,20 @@
-from ..transport import Transport
 from .datasource import DatasourcePy
-from .message import MessagePy
-from .ejb import EjbPy
-from .utils import UtilsPy
-from .logging import LoggingPy
 from .deployment import DeploymentPy
-
-import logging
-
+from .ejb import EjbPy
+from .logging import LoggingPy
+from .message import MessagePy
+from .utils import UtilsPy
+from ..transport import Transport
+from .attribute import AttributePy
+from .snapshot import SnapshotPy
 
 class PyJboss(object):
-    '''
+    """
     Jboss Client API, provides a way to get information about jboss and Wildfly resources by its API.
 
     This instance has the following attributes:
         :client.datasource  This provides informations about datasources and xa-datasources
-        :client.ejb         This provides informations about ejb thread pools 
+        :client.ejb         This provides informations about ejb thread pools
         :client.messages    This provides informations about jms-queues and jms-topics
         :client.utils       This provides general informations like jvm-memory
 
@@ -31,7 +30,8 @@ class PyJboss(object):
     :param password: The password of jboss user.
     :param host: This parameter must be used for the domain mode only, this especify the host in domain mode that will be consulted.
     :param server: This parameter must be used for the domain mode only, this especify a server from the host that will be consulted.
-    '''
+    """
+
     def __init__(self, controller, user, password, host=None, server=None):
         self.controller = controller
         self.user = user
@@ -44,7 +44,9 @@ class PyJboss(object):
                                    controller=self.controller,
                                    host=self.host,
                                    server=self.server)
-        
+
+        self.attribute = AttributePy(self)
+        self.snapshot = SnapshotPy(self)
         self.datasource = DatasourcePy(self)
         self.message = MessagePy(self)
         self.ejb = EjbPy(self)

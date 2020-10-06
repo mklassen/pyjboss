@@ -1,6 +1,8 @@
 from __future__ import absolute_import
-import json
+
 import argparse
+import json
+
 
 # Metodo responsible for format output to user
 
@@ -10,7 +12,7 @@ def print_pretty(command_return):
     print(transform_json)
 
 
-class main():
+class main:
     from . import PyJboss
 
     # main command
@@ -101,7 +103,8 @@ class main():
     logging_parse.add_argument(
         '--lines', help="Amount of lines to read of log file", required=False)
     logging_parse.add_argument(
-        '--tail', help="If used the read of log file will be starting in the end of file", required=False, action='store_true')
+        '--tail', help="If used the read of log file will be starting in the end of file", required=False,
+        action='store_true')
     logging_parse.set_defaults(command="logging")
 
     # parse deployment command
@@ -110,7 +113,8 @@ class main():
     deployment_parse.add_argument(
         '--list', help="Obtain a list of packages deployed", action='store_true', required=False)
     deployment_parse.add_argument(
-        '--get-undertow-information', help="Get undertow information about the package deployed or sub-deployed", action='store_true', required=False)
+        '--get-undertow-information', help="Get undertow information about the package deployed or sub-deployed",
+        action='store_true', required=False)
     deployment_parse.add_argument(
         '--package', help="A filename of a deployed package with an extesion war, ear or jar")
     deployment_parse.add_argument(
@@ -118,7 +122,7 @@ class main():
     deployment_parse.set_defaults(command="deployment")
 
     '''
-    Return 
+    Return
     '''
 
     # return main_parse
@@ -175,19 +179,19 @@ class main():
                     datasource_name=parse_return.datasource))
     # process command utils
     elif parse_return.command == 'utils':
-        if parse_return.get_memory_info == True:
+        if parse_return.get_memory_info:
             print_pretty(obJboss.utils.get_memory_info())
     # process command logging
     elif parse_return.command == 'logging':
-        if parse_return.list == True:
+        if parse_return.list:
             print_pretty(obJboss.logging.list())
         if parse_return.read_logfile:
-            if parse_return.lines == None:
+            if not parse_return.lines:
                 op_log_lines = 10
             else:
                 op_log_lines = parse_return.lines
 
-            if parse_return.tail == True:
+            if parse_return.tail:
                 op_log_tail = True
             else:
                 op_log_tail = False
@@ -206,4 +210,3 @@ class main():
         elif parse_return.get_undertow_information:
             print_pretty(obJboss.deployment.get_undertow_information(
                 deployment=parse_return.package, sub_deployment=parse_return.sub_package))
-
